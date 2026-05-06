@@ -3,13 +3,15 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
- 
+import { env } from './config/env.js';
+import { ApiError } from './utils/apiError.js';
+
 const app = express();
 app.use(helmet());
 app.use(morgan("combined"));
 app.use(cors(
     {
-        origin: "process.env.CORS_ORIGIN",
+        origin: env.CORS_ORIGIN,
         credentials: true
     }
 ));
