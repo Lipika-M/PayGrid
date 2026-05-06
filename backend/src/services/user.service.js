@@ -1,8 +1,13 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { pool } from "../config/db.js"
 import { env } from "../config/env.js"
 import { ApiError } from "../utils/apiError.js"
+
+import {
+  createUser,
+  findUserByEmail,
+  findUserById
+} from "../models/user.model.js"
 
 export const registerUser = async (email, password) => {
   if (!email || !password) {
@@ -11,23 +16,15 @@ export const registerUser = async (email, password) => {
 
   const normalizedEmail = email.toLowerCase().trim()
 
+  const existingUser = await findUserByEmail(normalizedEmail)
+
+  if (existingUser) {
+    throw new ApiError(400, "User already exists")
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  try {
-    const result = await pool.query(
-      `INSERT INTO users (email, password_hash)
-       VALUES ($1, $2)
-       RETURNING id, email`,
-      [normalizedEmail, hashedPassword]
-    )
-
-    return result.rows[0]
-  } catch (err) {
-    if (err.code === "23505") {
-      throw new ApiError(400, "User already exists")
-    }
-    throw err
-  }
+  return await createUser(normalizedEmail, hashedPassword)
 }
 
 export const loginUser = async (email, password) => {
@@ -37,12 +34,7 @@ export const loginUser = async (email, password) => {
 
   const normalizedEmail = email.toLowerCase().trim()
 
-  const result = await pool.query(
-    "SELECT id, email, password_hash FROM users WHERE email = $1",
-    [normalizedEmail]
-  )
-
-  const user = result.rows[0]
+  const user = await findUserByEmail(normalizedEmail)
 
   if (!user) throw new ApiError(401, "Invalid credentials")
 
@@ -67,12 +59,7 @@ export const loginUser = async (email, password) => {
 }
 
 export const getUserById = async (id) => {
-  const result = await pool.query(
-    "SELECT id, email, created_at FROM users WHERE id = $1",
-    [id]
-  )
-
-  const user = result.rows[0]
+  const user = await findUserById(id)
 
   if (!user) throw new ApiError(404, "User not found")
 
