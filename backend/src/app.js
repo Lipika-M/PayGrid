@@ -20,6 +20,9 @@ app.use(urlencoded({extended: true, limit:"16kb"}));
 app.use(express.static('public'));
 app.use(cookieParser());
 
+import userRouter from "./routers/user.router.js"
+app.use("/api/v1/users", userRouter)
+
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({
