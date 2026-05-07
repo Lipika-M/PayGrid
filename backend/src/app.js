@@ -21,7 +21,10 @@ app.use(express.static('public'));
 app.use(cookieParser());
 
 import userRouter from "./routers/user.router.js"
+import walletRouter from "./routers/wallet.router.js"
+
 app.use("/api/v1/users", userRouter)
+app.use("/api/v1/wallets", walletRouter)
 
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
