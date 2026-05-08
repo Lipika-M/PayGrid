@@ -25,3 +25,24 @@ export const findWalletByUserId = async (userId) => {
 
   return result.rows[0]
 }
+
+export const updateWalletBalance = async ({
+  walletId,
+  currentVersion,
+  newBalance
+}) => {
+  const result = await pool.query(
+    `
+    UPDATE wallets
+    SET
+      balance = $1,
+      version = version + 1
+    WHERE id = $2
+    AND version = $3
+    RETURNING *
+    `,
+    [newBalance, walletId, currentVersion]
+  )
+
+  return result.rows[0]
+}
