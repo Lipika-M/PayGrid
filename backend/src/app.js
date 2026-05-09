@@ -23,9 +23,13 @@ app.use(cookieParser());
 import userRouter from "./routers/user.router.js"
 import walletRouter from "./routers/wallet.router.js"
 import ledgerRouter from "./routers/ledger.router.js"
+import transactionRouter from "./routers/transaction.router.js"
+
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/wallets", walletRouter)
 app.use("/api/v1/ledger", ledgerRouter)
+app.use("/api/v1/transactions", transactionRouter)
+
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({

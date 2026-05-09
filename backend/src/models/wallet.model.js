@@ -46,3 +46,19 @@ export const updateWalletBalance = async ({
 
   return result.rows[0]
 }
+
+export const findWalletById = async (
+  walletId
+) => {
+
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM wallets
+    WHERE id = $1
+    `,
+    [walletId]
+  )
+
+  return result.rows[0]
+}

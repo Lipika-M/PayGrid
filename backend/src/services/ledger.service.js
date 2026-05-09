@@ -28,7 +28,7 @@ export const credit = async ({
     throw new ApiError(404, "Wallet not found")
   }
 
-  const newBalance = Number(wallet.balance) + amount
+  const newBalance = parseInt(wallet.balance, 10) + amount
 
   const updatedWallet = await updateWalletBalance({
     walletId: wallet.id,
@@ -66,11 +66,11 @@ export const debit = async ({
     throw new ApiError(404, "Wallet not found")
   }
 
-  if (Number(wallet.balance) < amount) {
+  if (parseInt(wallet.balance, 10) < amount) {
     throw new ApiError(400, "Insufficient balance")
   }
 
-  const newBalance = Number(wallet.balance) - amount
+  const newBalance = parseInt(wallet.balance, 10) - amount
 
   const updatedWallet = await updateWalletBalance({
     walletId: wallet.id,
