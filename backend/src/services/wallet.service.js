@@ -22,5 +22,9 @@ export const getMyWallet = async (userId) => {
     throw new ApiError(404, "Wallet not found")
   }
 
-  return wallet
+  return {
+    ...wallet,
+    balance: parseInt(wallet.balance, 10),
+    version: parseInt(wallet.version, 10)
+  }
 }

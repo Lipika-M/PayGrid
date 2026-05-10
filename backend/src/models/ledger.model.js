@@ -6,9 +6,11 @@ export const createLedgerEntry = async ({
   entryType,
   amount,
   balanceAfter,
-  description
+  description,
+  client
 }) => {
-  const result = await pool.query(
+  const db = client || pool
+  const result = await db.query(
     `
     INSERT INTO ledger_entries (
       wallet_id,
@@ -34,8 +36,9 @@ export const createLedgerEntry = async ({
   return result.rows[0]
 }
 
-export const getWalletLedgerEntries = async (walletId) => {
-  const result = await pool.query(
+export const getWalletLedgerEntries = async (walletId, client) => {
+  const db = client || pool
+  const result = await db.query(
     `
     SELECT *
     FROM ledger_entries

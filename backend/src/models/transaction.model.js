@@ -6,10 +6,11 @@ export const createTransaction = async ({
   amount,
   status,
   idempotencyKey,
-  description
+  description,
+  client
 }) => {
-
-  const result = await pool.query(
+  const db = client || pool
+  const result = await db.query(
     `
     INSERT INTO transactions (
       wallet_id,
@@ -36,10 +37,12 @@ export const createTransaction = async ({
 }
 
 export const findTransactionById = async (
-  transactionId
+  transactionId,
+  client
 ) => {
+  const db = client || pool
 
-  const result = await pool.query(
+  const result = await db.query(
     `
     SELECT *
     FROM transactions
@@ -52,9 +55,10 @@ export const findTransactionById = async (
 }
 
 export const findTransactionByIdempotencyKey =
-  async (idempotencyKey) => {
+  async (idempotencyKey, client) => {
+    const db = client || pool
 
-    const result = await pool.query(
+    const result = await db.query(
       `
       SELECT *
       FROM transactions
@@ -68,10 +72,12 @@ export const findTransactionByIdempotencyKey =
 
 export const updateTransactionStatus = async ({
   transactionId,
-  status
+  status,
+  client
 }) => {
+  const db = client || pool
 
-  const result = await pool.query(
+  const result = await db.query(
     `
     UPDATE transactions
     SET

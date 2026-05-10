@@ -2,6 +2,7 @@ import express from "express"
 
 import {
   debitTransaction,
+  creditTransaction,
   getTransaction
 } from "../controllers/transaction.controller.js"
 
@@ -15,7 +16,10 @@ router.route("/debit").post(
   verifyJWT,
   debitTransaction
 )
-
+router.route("/credit").post(
+  verifyJWT,
+  creditTransaction
+)
 router.route("/:id").get(
   verifyJWT,
   getTransaction

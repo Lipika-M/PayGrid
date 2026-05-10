@@ -1,8 +1,6 @@
-import { Worker }
-from "bullmq"
+import { Worker } from "bullmq"
 
-import { redis }
-from "../config/redis.js"
+import { redis } from "../config/redis.js"
 
 import {
   findTransactionById,
@@ -13,12 +11,13 @@ import {
   findWalletById
 } from "../models/wallet.model.js"
 
-import { debit }
-from "../services/ledger.service.js"
+import { debit, credit } from "../services/ledger.service.js"
 
 import {
   TRANSACTION_STATUS
 } from "../constants/transactionStatus.js"
+
+import { TRANSACTION_TYPES } from "../constants/transactionTypes.js"
 
 export const worker = new Worker(
 
@@ -67,29 +66,56 @@ export const worker = new Worker(
           transaction.wallet_id
         )
 
-      await debit({
-        userId: wallet.user_id,
-        amount: parseInt(
-          transaction.amount,
-          10
-        ),
-        description:
-          transaction.description,
-        transactionId
-      })
+      if (!wallet) {
+        throw new Error(
+          "Wallet not found"
+        )
+      }
 
-      await updateTransactionStatus({
-        transactionId,
-        status:
-          TRANSACTION_STATUS.SUCCESS
-      })
+      if (
+        transaction.transaction_type ===
+        TRANSACTION_TYPES.DEBIT
+      ) {
+        await debit({
+          userId: wallet.user_id,
+          amount: parseInt(
+            transaction.amount,
+            10
+          ),
+          description:
+            transaction.description,
+          transactionId
+        })
+
+      } else if (
+        transaction.transaction_type ===
+        TRANSACTION_TYPES.CREDIT
+      ) {
+
+        await credit({
+          userId: wallet.user_id,
+          amount: parseInt(
+            transaction.amount,
+            10
+          ),
+          description:
+            transaction.description,
+          transactionId
+        })
+
+      } else {
+
+        throw new Error(
+          "Invalid transaction type"
+        )
+      }
 
       console.log(
         `Transaction ${transactionId} SUCCESS`
       )
 
     } catch (err) {
-
+      
       await updateTransactionStatus({
         transactionId,
         status:
@@ -106,6 +132,23 @@ export const worker = new Worker(
   },
 
   {
-    connection: redis
+    connection: redis,
+
+    concurrency: 10
   }
 )
+
+worker.on("completed", (job) => {
+
+  console.log(
+    `Job ${job.id} completed`
+  )
+})
+
+worker.on("failed", (job, err) => {
+
+  console.error(
+    `Job ${job?.id} failed`,
+    err.message
+  )
+})

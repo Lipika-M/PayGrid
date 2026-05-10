@@ -1,7 +1,8 @@
 import { pool } from "../config/db.js"
 
-export const createWallet = async (userId) => {
-  const result = await pool.query(
+export const createWallet = async (userId,client) => {
+  const db = client || pool
+  const result = await db.query(
     `
     INSERT INTO wallets (user_id)
     VALUES ($1)
@@ -13,8 +14,9 @@ export const createWallet = async (userId) => {
   return result.rows[0]
 }
 
-export const findWalletByUserId = async (userId) => {
-  const result = await pool.query(
+export const findWalletByUserId = async (userId, client) => {
+  const db = client || pool
+  const result = await db.query(
     `
     SELECT *
     FROM wallets
@@ -30,8 +32,9 @@ export const updateWalletBalance = async ({
   walletId,
   currentVersion,
   newBalance
-}) => {
-  const result = await pool.query(
+}, client) => {
+  const db = client || pool
+  const result = await db.query(
     `
     UPDATE wallets
     SET
@@ -48,10 +51,12 @@ export const updateWalletBalance = async ({
 }
 
 export const findWalletById = async (
-  walletId
+  walletId,
+  client
 ) => {
+  const db = client || pool
 
-  const result = await pool.query(
+  const result = await db.query(
     `
     SELECT *
     FROM wallets
