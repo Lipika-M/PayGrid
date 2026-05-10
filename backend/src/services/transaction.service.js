@@ -10,6 +10,11 @@ import { paymentQueue } from "../queue/payment.queue.js";
 
 import { ApiError } from "../utils/apiError.js";
 
+import {
+  checkIdempotency,
+  saveIdempotency,
+} from "../utils/idempotency.js";
+
 import { TRANSACTION_STATUS } from "../constants/transactionStatus.js";
 
 import { TRANSACTION_TYPES } from "../constants/transactionTypes.js";
@@ -32,6 +37,15 @@ export const createDebitTransaction = async ({
     throw new ApiError(400, "Amount must be positive");
   }
 
+  // Step 1: Check Redis first
+  const cachedTransactionId = await checkIdempotency(
+    idempotencyKey
+  );
+
+  if (cachedTransactionId) {
+    return await findTransactionById(cachedTransactionId);
+  }
+
   const wallet = await findWalletByUserId(userId);
 
   if (!wallet) {
@@ -50,13 +64,17 @@ export const createDebitTransaction = async ({
       description,
     });
   } catch (err) {
-    // DB-level idempotency
-    if (err.code === "23505") {
+     if (err.code === "23505") {
       return await findTransactionByIdempotencyKey(idempotencyKey);
     }
 
     throw err;
   }
+
+   await saveIdempotency({
+    key: idempotencyKey,
+    transactionId: transaction.id,
+  });
 
   await paymentQueue.add(
     "debit-wallet",
