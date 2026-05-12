@@ -31,8 +31,9 @@ export const findWalletByUserId = async (userId, client) => {
 export const updateWalletBalance = async ({
   walletId,
   currentVersion,
-  newBalance
-}, client) => {
+  newBalance,
+  client
+}) => {
   const db = client || pool
   const result = await db.query(
     `

@@ -2,6 +2,7 @@ import { pool } from "../config/db.js"
 
 export const createTransaction = async ({
   walletId,
+  receiverWalletId=null,
   transactionType,
   amount,
   status,
@@ -14,17 +15,19 @@ export const createTransaction = async ({
     `
     INSERT INTO transactions (
       wallet_id,
+      receiver_wallet_id,
       transaction_type,
       amount,
       status,
       idempotency_key,
       description
     )
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
     `,
     [
       walletId,
+      receiverWalletId,
       transactionType,
       amount,
       status,

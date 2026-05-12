@@ -1,6 +1,7 @@
 import {
   createDebitTransaction,
   createCreditTransaction,
+  createTransferTransaction,
   getTransactionById,
 } from "../services/transaction.service.js";
 
@@ -45,6 +46,20 @@ export const creditTransaction = asyncHandler(async (req, res) => {
   });
 
   res.status(202).json(new ApiResponse(202, "Credit Transaction queued", transaction));
+});
+
+export const transferTransaction = asyncHandler(async (req, res) => {
+  const { receiverEmail, amount, description, idempotencyKey } = req.body;
+
+  const transaction = await createTransferTransaction({
+    userId: req.user.id,
+    receiverEmail,
+    amount: parseInt(amount, 10),
+    description,
+    idempotencyKey,
+  });
+
+  res.status(202).json(new ApiResponse(202, "Transfer Transaction queued", transaction));
 });
 
 export const getTransaction = asyncHandler(async (req, res) => {

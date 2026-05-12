@@ -1,4 +1,5 @@
 export const TRANSACTION_TYPES = {
   CREDIT: "CREDIT",
-  DEBIT: "DEBIT"
+  DEBIT: "DEBIT",
+  TRANSFER: "TRANSFER"
 }

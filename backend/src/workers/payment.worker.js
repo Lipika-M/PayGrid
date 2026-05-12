@@ -11,7 +11,7 @@ import {
   findWalletById
 } from "../models/wallet.model.js"
 
-import { debit, credit } from "../services/ledger.service.js"
+import { debit, credit , transfer } from "../services/ledger.service.js"
 
 import {
   TRANSACTION_STATUS
@@ -58,7 +58,8 @@ export const worker = new Worker(
       await updateTransactionStatus({
         transactionId,
         status:
-          TRANSACTION_STATUS.PROCESSING
+          TRANSACTION_STATUS.PROCESSING,
+        client: null
       })
 
       const wallet =
@@ -103,13 +104,21 @@ export const worker = new Worker(
           transactionId
         })
 
-      } else {
-
-        throw new Error(
-          "Invalid transaction type"
-        )
       }
-
+     else if (transaction.transaction_type ===
+          TRANSACTION_TYPES.TRANSFER) {
+        await transfer({
+          senderUserId: wallet.user_id,
+          receiverWalletId: transaction.receiver_wallet_id,
+          amount: parseInt(
+            transaction.amount,
+            10
+          ),
+          description:
+            transaction.description,
+          transactionId
+        })
+      }   
       console.log(
         `Transaction ${transactionId} SUCCESS`
       )
@@ -119,7 +128,8 @@ export const worker = new Worker(
       await updateTransactionStatus({
         transactionId,
         status:
-          TRANSACTION_STATUS.FAILED
+          TRANSACTION_STATUS.FAILED,
+        client: null
       })
 
       console.error(
