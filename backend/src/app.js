@@ -1,10 +1,16 @@
-import express, { urlencoded } from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import { env } from './config/env.js';
-import { ApiError } from './utils/apiError.js';
+import express, { urlencoded } from "express";
+import cors from "cors";
+import morgan from "morgan";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import { env } from "./config/env.js";
+import { ApiError } from "./utils/apiError.js";
+
+import userRouter from "./routers/user.router.js"
+import walletRouter from "./routers/wallet.router.js"
+import ledgerRouter from "./routers/ledger.router.js"
+import transactionRouter from "./routers/transaction.router.js"
+import webhookRouter from "./routers/webhook.router.js"
 
 const app = express();
 app.use(helmet());
@@ -15,21 +21,26 @@ app.use(cors(
         credentials: true
     }
 ));
+
+app.use(
+  "/api/v1/webhooks",
+  express.raw({
+    type: "application/json"
+  }),
+  webhookRouter
+)
+
 app.use(express.json({limit:"16kb"}));
 app.use(urlencoded({extended: true, limit:"16kb"}));
 app.use(express.static('public'));
 app.use(cookieParser());
 
-import userRouter from "./routers/user.router.js"
-import walletRouter from "./routers/wallet.router.js"
-import ledgerRouter from "./routers/ledger.router.js"
-import transactionRouter from "./routers/transaction.router.js"
 
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/wallets", walletRouter)
 app.use("/api/v1/ledger", ledgerRouter)
 app.use("/api/v1/transactions", transactionRouter)
-
+ 
 app.use((err, req, res, next) => {
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({

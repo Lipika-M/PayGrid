@@ -38,5 +38,8 @@ export const env = Object.freeze({
 	),
 	JWT_SECRET: getRequiredEnv("JWT_SECRET"),
 	REDIS_URL: getRequiredEnv("REDIS_URL"),
-	CORS_ORIGIN: process.env.CORS_ORIGIN ?? "http://localhost:3000"
+	CORS_ORIGIN: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+	RAZORPAY_KEY_ID: getRequiredEnv("RAZORPAY_KEY_ID"),
+	RAZORPAY_KEY_SECRET: getRequiredEnv("RAZORPAY_KEY_SECRET"),
+	RAZORPAY_WEBHOOK_SECRET: getRequiredEnv("RAZORPAY_WEBHOOK_SECRET")
 })

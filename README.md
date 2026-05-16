@@ -205,9 +205,25 @@ DB_SSL_REJECT_UNAUTHORIZED=false
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=your-super-secret-jwt-key
 CORS_ORIGIN=http://localhost:3000
+RAZORPAY_KEY_ID=your-razorpay-key-id
+RAZORPAY_KEY_SECRET=your-razorpay-key-secret
+RAZORPAY_WEBHOOK_SECRET=your-razorpay-webhook-secret
 ```
 
-## Run
+### Razorpay Configuration
+
+Razorpay credentials are required for payment processing:
+
+- **RAZORPAY_KEY_ID**: Your Razorpay Key ID from the dashboard
+- **RAZORPAY_KEY_SECRET**: Your Razorpay Key Secret (keep secure, never commit)
+- **RAZORPAY_WEBHOOK_SECRET**: Webhook signing secret for verifying incoming webhook requests
+
+These values are used for:
+- Creating payment orders
+- Initializing Razorpay checkout
+- Verifying webhook signatures on payment events
+
+
 
 ```bash
 cd backend

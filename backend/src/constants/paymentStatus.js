@@ -1,0 +1,5 @@
+export const PAYMENT_STATUS = {
+  CREATED: "CREATED",
+  VERIFIED: "VERIFIED",
+  FAILED: "FAILED"
+}
